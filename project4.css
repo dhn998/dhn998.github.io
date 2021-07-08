@@ -223,7 +223,7 @@ footer a img {
     .col-768-4 {width: 33.33%;}
     .col-768-6 {width: 50%;}
     .col-768-12 {width: 100%;}
-    #menu-icon, #homepage-btn>span {display: none;}
+    .overlay, #menu-icon, #homepage-btn>span {display: none;}
     header ul {
         display: flex;
         flex-wrap: wrap;

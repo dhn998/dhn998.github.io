@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<header>
+	<meta charset='UTF-8'>
+	<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+	<title>The Class Marksheet (by duongnhFX11246)</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<!-- <script src='jquery.min.js'></script> -->
+	<style>
+		* {
+			box-sizing: border-box;
+			margin: 0;
+		}
+		body {
+			padding: 10px;
+			background-color: rgb(246, 246, 246);
+			font-family: Arial, sans-serif;
+			color: rgb(76, 79, 84);
+		}
+		h1 {
+			text-align: center;
+			color: #e22658; /* #cd2653 */
+		}
+		#error, #warning {
+			font-style: italic;
+		}
+		form {
+			text-align: center;
+			margin: 15px auto;
+		}
+		form div {
+			display: flex;
+			justify-content: space-between;
+			text-align: left;
+			height: 45px;
+			margin: auto;
+			max-width: 480px;
+		}
+		label {
+			height: 25px;
+			margin: auto 0;
+			cursor: pointer;
+		}
+		input {
+			padding: 5px;
+			width: 64%;
+			height: 36px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+		}
+		button {
+			padding: 13px;
+			font-size: 1rem;
+			cursor: pointer;
+			position: relative;
+			border: none;
+			border-radius: 5px;
+			color: white;
+			margin: 5px;
+		}
+		button:hover {
+			box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+			font-weight: bold;
+		}
+		button:active {
+			top: 2px;
+		}
+		table {
+			text-align: center;
+			margin: 15px 0;
+			width: 100%;
+			border-collapse: collapse;
+		}
+		th, td {
+			padding: 7px;
+			border: 1px solid #ccc;
+		}
+		th {
+			background-color: rgb(13, 162, 204);
+			color: white;
+		}
+		th:last-child {
+			background-color:rgb(110, 184, 25);
+		}
+	</style>
+</header>
+
+<body>
+	<h1>Tạo bảng điểm cuối học kì</h1>
+	<form id='dataForm'>
+		<div>
+			<label for='name'><b>Họ và tên</b></label>
+			<input id='name' type='text'>
+		</div>
+		<div>
+			<label for='math'>Điểm Toán</label>
+			<input id='math' type='text'>
+		</div>
+		<div>
+			<label for='phys'>Điểm Lí</label>
+			<input id='phys' type='text'>
+		</div>
+		<div>
+			<label for='chem'>Điểm Hóa</label>
+			<input id='chem' type='text'>
+		</div>
+		<!-- <div>
+			<label for='bio'>Điểm Sinh</label>
+			<input id='bio' type='text'>
+		</div>
+		<div>
+			<label for='lit'>Điểm Văn</label>
+			<input id='lit' type='text'>
+		</div>
+		<div>
+			<label for='his'>Điểm Sử</label>
+			<input id='his' type='text'>
+		</div>
+		<div>
+			<label for='geo'>Điểm Địa</label>
+			<input id='geo' type='text'>
+		</div>
+		<div>
+			<label for='foreignLang'>Điểm Ngoại ngữ</label>
+			<input id='foreignLang' type='text'>
+		</div> -->
+		<p id='error'></p>
+		<button id='fillBtn' type='button' style="background-color: rgb(253, 96, 46);">Nhập điểm</button>
+	</form>
+	<div style="overflow-x: auto;">
+		<table id='dataTable'>
+			<thead>
+				<tr>
+					<th>STT</th>
+					<th>Họ tên</th>
+					<th>Toán</th>
+					<th>Lí</th>
+					<th>Hóa</th>
+					<!-- <th>Sinh</th>
+					<th>Văn</th>
+					<th>Sử</th>
+					<th>Địa</th>
+					<th>Ngoại ngữ</th> -->
+					<th>Trung bình</th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+	</div>
+	<div style="text-align: center;">
+		<p id='warning'></p>
+		<button id='avgBtn' type='button' style="background-color: rgb(110, 184, 25);">Tính điểm trung bình</button><br>
+		<button id='excellentBtn' type='button' style="color: red;">Xác định loại Giỏi</button>
+		<button id='goodBtn' type='button' style="color: blue;">Xác định loại Khá</button><br>
+		<button id='bestBtn' type='button' style="background-color: gold; color: inherit;">Xếp hạng Cao nhất</button>
+		<button id='worstBtn' type='button' style="background-color: violet; color: inherit;">Xếp hạng Thấp nhất</button>
+	</div>
+	
+	<script>
+		//Liên kết sự kiện và chức năng phù hợp cho các nút trên trang sau khi đã load xong
+		$(document).ready(function() {
+			$('#fillBtn').click(function(){getData();});
+			$('#avgBtn').click(function(){printAvg();});
+			$('#excellentBtn').click(function(){findExcellent();});
+			$('#goodBtn').click(function(){findGood();});
+			$('#bestBtn').click(function(){findBest();});
+			$('#worstBtn').click(function(){findWorst();});
+		})
+		
+		const n = $('#dataForm input').length;
+		let avgScore = [];
+		avgScore[0] = +Infinity;
+		let order = 0;
+		
+		//Chức năng lấy dữ liệu và đưa vào bảng
+		function getData() {
+			$('#error').text(""); //Xóa các báo lỗi trước đó nếu có
+			let testScore = {}; //Khai báo đối tượng testScore để lưu dữ liệu mỗi lần chạy hàm			
+			//Xử lí việc lưu họ tên và điểm vào đối tượng testScore
+			$('#dataForm input').each(function() {
+				let subjectId = $(this).attr('id'),
+					score = $(this).val(),
+					subjectName = $('label[for=' + subjectId + ']').text();
+				if (subjectId == 'name') {
+					if (isNaN(score)) {
+						testScore[subjectId] = score;
+					} else {
+						$('#error').html($('#error').html() + subjectName + " không hợp lệ, vui lòng nhập lại.<br>");
+					}
+				} else {
+					if (score == "") {
+						$('#error').html($('#error').html() + subjectName + " chưa nhập.<br>");
+					} else if (!isNaN(score) && parseFloat(score)>=0 && parseFloat(score)<=10) {
+						testScore[subjectId] = parseFloat(score);
+					} else {
+						$('#error').html($('#error').html() + subjectName + " không hợp lệ, vui lòng nhập lại.<br>");
+					}
+				}
+				$(this).val("");
+			});
+			//In điểm vào bảng và lưu các điểm trung bình
+			if ($('#error').html() == "") {
+				$('#warning').text("");
+				$('#dataTable tbody tr').each(function() {
+					$(this).css({'color': 'inherit', 'background-color': 'initial', 'font-weight': 'initial'});
+				});
+				let sum = 0;
+				$('#dataTable tbody').append('<tr><td>' + (++order) + '</td></tr>');
+				$('#dataForm input').each(function() {
+					let subjectId = $(this).attr('id');
+					$('#dataTable tr').last().append('<td>' + testScore[subjectId] + '</td>');
+					if (subjectId != 'name') {
+						sum += testScore[subjectId];
+					}
+				});
+				$('#dataTable tr').last().append('<td>?</td>');
+				avgScore[order] = Math.round((sum / (n - 1)) * 10) / 10;
+			}
+		}
+		
+		//Chức năng đưa điểm trung bình vào bảng
+		function printAvg() {
+			$('#error').text("");
+			$('#warning').text("");
+			if (order == 0) {
+				$('#warning').text("Chưa có dữ liệu, vui lòng nhập dữ liệu trước.");
+			} else {
+				$('#dataTable tbody tr').each(function() {
+					$(this).css({'color': 'inherit', 'background-color': 'initial', 'font-weight': 'initial'});
+					let i = $(this).children('td').first().html();
+					$(this).children('td').last().html(avgScore[i]);
+				});
+			}
+		}
+		
+		//Chức năng tìm loại giỏi
+		function findExcellent() {
+			$('#error').text("");
+			$('#warning').text("");
+			if (order == 0) {
+				$('#warning').text("Chưa có dữ liệu, vui lòng nhập dữ liệu trước.");
+			} else if ($('#dataTable tr').last().children('td').last().html() == "?") {
+				$('#warning').text("Chưa có điểm trung bình, vui lòng tính điểm trung bình trước.");
+			} else {
+				let count = 0;
+				$('#dataTable tbody tr').each(function() {
+					$(this).css({'color': 'inherit', 'background-color': 'initial', 'font-weight': 'initial'});
+					let avg = $(this).children('td').last().html();
+					if (avg >= 8) {
+						count++;
+						$(this).css({'color': 'red', 'font-weight': 'bold'});
+					}
+				});
+				if (count == 0) {
+					$('#warning').text("Không có loại Giỏi.");
+				}
+			}
+		}
+		
+		//Chức năng tìm loại khá
+		function findGood() {
+			$('#error').text("");
+			$('#warning').text("");
+			if (order == 0) {
+				$('#warning').text("Chưa có dữ liệu, vui lòng nhập dữ liệu trước.");
+			} else if ($('#dataTable tr').last().children('td').last().html() == "?") {
+				$('#warning').text("Chưa có điểm trung bình, vui lòng tính điểm trung bình trước.");
+			} else {
+				let count = 0;
+				$('#dataTable tbody tr').each(function() {
+					$(this).css({'color': 'inherit', 'background-color': 'initial', 'font-weight': 'initial'});
+					let avg = $(this).children('td').last().html();
+					if (avg < 8 && avg >= 6.5) {
+						count++;
+						$(this).css({'color': 'blue', 'font-weight': 'bold'});
+					}
+				});
+				if (count == 0) {
+					$('#warning').text("Không có loại Khá.");
+				}
+			}
+		}
+		
+		//Chức năng tìm hạng nhất
+		function findBest() {
+			$('#error').text("");
+			$('#warning').text("");
+			let rankScore = Array.from(avgScore);
+			rankScore.sort(function(x,y) {return y - x;});
+			if (order == 0) {
+				$('#warning').text("Chưa có dữ liệu, vui lòng nhập dữ liệu trước.");
+			} else if (order < 2) {
+				$('#warning').text("Chỉ có duy nhất một học sinh, không cần xếp hạng.");
+			} else if ($('#dataTable tr').last().children('td').last().html() == "?") {
+				$('#warning').text("Chưa có điểm trung bình, vui lòng tính điểm trung bình trước.");
+			} else {
+				let count = 0;
+				$('#dataTable tbody tr').each(function() {
+					$(this).css({'color': 'inherit', 'background-color': 'initial', 'font-weight': 'initial'});
+					if ($(this).children('td').last().html() == rankScore[1]) {
+						$(this).css({'background-color': 'gold', 'font-weight': 'bold'});
+						count++;
+					}
+				});
+				if (count == order) { //Xử lí trường hợp không thể xếp hạng
+					$('#dataTable tbody tr').each(function() {
+						$(this).css({'color': 'inherit', 'background-color': 'initial', 'font-weight': 'initial'});
+					});
+					$('#warning').text("Không có xếp hạng cao nhất.");
+				}
+			}
+		}
+		
+		//Chức năng tìm hạng thấp nhất
+		function findWorst() {
+			$('#error').text("");
+			$('#warning').text("");
+			let rankScore = Array.from(avgScore);
+			rankScore.sort(function(x,y){return y-x;});
+			if (order == 0) {
+				$('#warning').text("Chưa có dữ liệu, vui lòng nhập dữ liệu trước.");
+			} else if (order < 2) {
+				$('#warning').text("Chỉ có duy nhất một học sinh, không cần xếp hạng.");
+			} else if ($('#dataTable tr').last().children('td').last().html() == "?") {
+				$('#warning').text("Chưa có điểm trung bình, vui lòng tính điểm trung bình trước.");
+			} else {
+				let count = 0;
+				$('#dataTable tbody tr').each(function() {
+					$(this).css({'color': 'inherit', 'background-color': 'initial', 'font-weight': 'initial'});
+					if ($(this).children('td').last().html() == rankScore[order]) {
+						$(this).css({'background-color': 'violet', 'font-weight': 'bold'});
+						count++;
+					}
+				});
+				if (count == order) { //Xử lí trường hợp không thể xếp hạng
+					$('#dataTable tbody tr').each(function() {
+						$(this).css({'color': 'inherit', 'background-color': 'initial', 'font-weight': 'initial'});
+					});
+					$('#warning').text("Không có xếp hạng thấp nhất.");
+				}
+			}
+		}
+	</script>
+</body>
+</html>

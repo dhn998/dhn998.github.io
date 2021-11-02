@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My News (by duongnhfx11246)</title>
+    <link href="project4.css" rel="stylesheet" type="text/css">
+    <script src="jquery.min.js" type="text/javascript"></script>
+</head>
+
+<body>    
+    <header>
+        <a class="homepage" href="index.html" title="MyNews">My News</a>
+        <ul>
+            <li><a href="index.html" class="nav-link" style="border-bottom: 3px solid;">HOT<img style="vertical-align: text-bottom;" src="images/flammable.png" alt="HOT"></a></li>
+            <li><a href="#world" class="nav-link">World</a></li>
+            <li><a href="#society" class="nav-link">Society</a></li>
+            <li><a href="#economic" class="nav-link">Economic</a></li>
+            <li><a href="#education" class="nav-link">Education</a></li>
+            <li><a href="#sport" class="nav-link">Sport</a></li>
+            <li><a href="#entertainment" class="nav-link">Entertainment</a></li>
+            <li><a href="#life" class="nav-link">Life</a></li>
+        </ul>
+        <nav class="search-menu">
+            <a href="javascript:void(0)" id="searchBtn"><img src="images/searchicon.png" alt="Search"></a>
+            <span id='menuBtn'>&#9776;</span>
+        </nav>
+        <nav id="myNav" class="overlay">
+            <a href="javascript:void(0)" id="closeMenu">&times;</a>
+            <div class="overlay-content">
+                <a href="index.html">HOT<img style="vertical-align: text-bottom;" src="images/flammable.png" alt="HOT"></a>
+                <a href="#world">World</a>
+                <a href="#society">Society</a>
+                <a href="#economic">Economic</a>
+                <a href="#education">Education</a>
+                <a href="#sport">Sport</a>
+                <a href="#entertainment">Entertainment</a>
+                <a href="#life">Life</a>
+            </div>
+        </nav>
+        <div id="searchBox">
+            <form id="searchForm" style="margin: 10px;">
+                <input id="searchKey" type="text" name="search" placeholder="Type keywords">
+                <button>Search</button>
+            </form>
+        </div>
+    </header>
+    
+    <main></main>    
+
+    <footer>
+        <div class="col-992-4">
+            <h2>NEWSLETTERS</h2>
+            <p>Receive news and updates from us.</p>
+            <form action="#">
+                <input id="subcribeb_email" name="subcribeb_email" type="email" placeholder="Your Email Address" required>
+                <button>Subscribe</button>
+            </form>
+        </div>
+        <div class="col-992-4">
+            <h2>HELPFULL LINKS</h2>
+            <ul>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact Us</a></li>
+                <li><a href="#faq">Frequently Questioned Answers</a></li>
+                <li><a href="#ad">Advertise</a></li>
+            </ul>
+        </div>
+        <div class="col-992-4">
+            <h2>FOLLOW US</h2>
+            <p>Visit our social network to see more.</p>
+            <a href="https://gnews.io/">
+                <img src="social-icons/facebook.svg" alt="Facebook" title="Facebook" style="background-color: #3B5998;">
+            </a>
+            <a href="https://twitter.com/gnews_io">
+                <img src="social-icons/twitter.svg" alt="Twitter" title="Twitter" style="background-color: #54c6f8;">
+            </a>
+            <a href="https://www.instagram.com/gnews.io">
+                <img src="social-icons/instagram.svg" alt="Instagram" title="Instagram" style="background-color: #f64724;">
+            </a>
+        </div>
+        <hr style="clear: both;">
+        <div style="text-align: center;">
+            <span class="col-768-12 col-992-3">&copy;2021 DHN-FX11246 Official</span>
+            <span class="col-768-4 col-992-3"><a href="#term-of-use">Terms of Use</a></span>
+            <span class="col-768-4 col-992-3"><a href="#privacy-policy">Privacy Policy</a></span>
+            <span class="col-768-4 col-992-3"><a href="#cookies">Cookies</a></span>
+        </div>
+    </footer>
+    
+    <script>
+        $('document').ready(function(){
+            // Ẩn hiện menu 
+            $('#menuBtn').click(function(){
+                $('#myNav').css("height", "100%");
+            });
+            $('#closeMenu').click(function(){
+                $('#myNav').css("height", "0");
+            });
+            
+            // Ẩn hiện searchBox
+            $('#searchBtn').click(function(){
+                $('#searchBox').fadeToggle(200);
+            });
+			$('#searchBox').change(function(){
+                $('#searchBox').fadeOut(200);
+            });
+            
+            // Lấy Top headlines, token dự phòng 1d28971e32abbc69f4ad4ef5079dd6df
+            {fetch('https://gnews.io/api/v4/top-headlines?token=24f814ee214024196d5587e45b51b463')
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    for (const article of data.articles) {
+                        $('main').append('<article><div><a href="' + article.url + '" target="_blank" rel="noopener noreferrer"><img src="' + article.image + '" alt="" title="' + article.title + '"></a></div><section><h3><a href="' + article.url + '" target="_blank" rel="noopener noreferrer">' + article.title + '</a></h3><p><i>' + article.publishedAt + '</i></p><p>' + article.description + '</p></section></article>');
+                    }
+                    $('main>article>div').addClass("col-992-4 col-768-5");
+                    $('main>article>section').addClass("col-992-8 col-768-7");
+                });
+            }
+
+            // Tìm kiếm article với từ khóa
+            $('#searchForm').submit(function(event){
+                event.preventDefault();
+                $('#searchBox').fadeOut(200);
+                $('main').html('<h1><img src="images/loading.gif" width="360px" height="360px" alt="loading"></h1>');
+                
+                {fetch('https://gnews.io/api/v4/search?q="' + $('#searchKey').val() + '"&token=24f814ee214024196d5587e45b51b463')
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        $('main').empty();
+                        if (data.totalArticles === 0) {
+                            $('main').append("<h1>No results found.</h1><h1>Sorry, we could'n find any results.</h1>");
+                        }
+                        if (data.hasOwnProperty("errors")) {
+                            $('main').append("<h1>The search keyword has an error, please try again.</h1>");
+                        }
+                        for (const article of data.articles) {
+                            $('main').append('<article><div><a href="' + article.url + '" target="_blank" rel="noopener noreferrer"><img src="' + article.image + '" alt="" title="' + article.title + '"></a></div><section><h3><a href="' + article.url + '" target="_blank" rel="noopener noreferrer">' + article.title + '</a></h3><p><i>' + article.publishedAt + '</i></p><p>' + article.description + '</p></section></article>');
+                        }
+                        $('main>article>div').addClass("col-992-4 col-768-5");
+                        $('main>article>section').addClass("col-992-8 col-768-7");
+                    });
+                }
+            });
+        });
+        
+    </script>
+</body>
+
+</html>
